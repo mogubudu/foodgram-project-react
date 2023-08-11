@@ -14,6 +14,10 @@ class Ingredient(models.Model):
         max_length=200
     )
 
+    class Meta:
+        verbose_name = 'Ингредиент'
+        verbose_name_plural = 'Ингредиенты'
+
 
 class IngredientAmount(models.Model):
     ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
@@ -25,6 +29,10 @@ class Tag(models.Model):
     name = models.CharField(verbose_name='Название тега', max_length=200)
     color = models.CharField(verbose_name='Цветовой HEX-код', max_length=7)
     slug = models.SlugField(verbose_name='Идентификатор URL')
+
+    class Meta:
+        verbose_name = 'Тег'
+        verbose_name_plural = 'Теги'
 
 
 class Recipe(models.Model):
