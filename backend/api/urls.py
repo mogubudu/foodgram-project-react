@@ -7,5 +7,6 @@ router = routers.DefaultRouter()
 router.register('tags', TagViewSet)
 
 urlpatterns = [
-    path('', include(router.urls))
+    path('', include(router.urls)),
+    path('', include('djoser.urls')),
 ]
