@@ -4,7 +4,7 @@ from djoser.serializers import (
     UserSerializer as DjoserUserSerializer
 )
 from django.contrib.auth import get_user_model
-from recipes.models import Tag
+from recipes.models import Ingredient, Tag
 from users.models import Subscribe
 
 User = get_user_model()
@@ -13,6 +13,12 @@ User = get_user_model()
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
+        fields = '__all__'
+
+
+class IngredientSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ingredient
         fields = '__all__'
 
 
