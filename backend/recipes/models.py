@@ -23,9 +23,20 @@ class Ingredient(models.Model):
 
 
 class IngredientAmount(models.Model):
-    ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
+    ingredient = models.ForeignKey(
+        Ingredient,
+        on_delete=models.CASCADE,
+        verbose_name='Название ингредиента'
+    )
     recipe = models.ForeignKey('Recipe', on_delete=models.CASCADE)
-    amount = models.PositiveIntegerField('Количество ингредиента')
+    amount = models.PositiveIntegerField('Количество')
+
+    class Meta:
+        verbose_name = 'Ингредиент'
+        verbose_name_plural = 'Ингредиенты'
+
+    def __str__(self):
+        return f'{self.ingredient} {self.amount}'
 
 
 class Tag(models.Model):
