@@ -22,23 +22,6 @@ class Ingredient(models.Model):
         return self.name
 
 
-class IngredientAmount(models.Model):
-    ingredient = models.ForeignKey(
-        Ingredient,
-        on_delete=models.CASCADE,
-        verbose_name='Название ингредиента'
-    )
-    recipe = models.ForeignKey('Recipe', on_delete=models.CASCADE)
-    amount = models.PositiveIntegerField('Количество')
-
-    class Meta:
-        verbose_name = 'Ингредиент'
-        verbose_name_plural = 'Ингредиенты'
-
-    def __str__(self):
-        return f'{self.ingredient} {self.amount}'
-
-
 class Tag(models.Model):
     name = models.CharField(verbose_name='Название тега', max_length=200)
     color = models.CharField(verbose_name='Цветовой HEX-код', max_length=7)
@@ -61,7 +44,10 @@ class Recipe(models.Model):
     name = models.CharField(verbose_name='Название рецепта', max_length=200)
     image = models.ImageField(verbose_name='Изображение рецепта')
     text = models.TextField(verbose_name='Текстовое описание')
-    ingredients = models.ManyToManyField(Ingredient, through=IngredientAmount)
+    ingredients = models.ManyToManyField(
+        Ingredient,
+        through='IngredientAmount'
+    )
     tags = models.ManyToManyField(Tag)
     cooking_time = models.PositiveSmallIntegerField(
         verbose_name='Время приготовления в минутах'
@@ -74,6 +60,23 @@ class Recipe(models.Model):
 
     def __str__(self):
         return f'{self.name}, {self.author}'
+
+
+class IngredientAmount(models.Model):
+    ingredient = models.ForeignKey(
+        Ingredient,
+        on_delete=models.CASCADE,
+        verbose_name='Название ингредиента'
+    )
+    recipe = models.ForeignKey('Recipe', on_delete=models.CASCADE)
+    amount = models.PositiveIntegerField('Количество')
+
+    class Meta:
+        verbose_name = 'Ингредиент'
+        verbose_name_plural = 'Ингредиенты'
+
+    def __str__(self):
+        return f'{self.ingredient} {self.amount}'
 
 
 class Favorites(models.Model):
