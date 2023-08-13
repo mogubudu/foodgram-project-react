@@ -3,9 +3,9 @@ from rest_framework import filters
 
 from djoser.views import UserViewSet as DjoserViewSet
 from django.contrib.auth import get_user_model
-from .serializers import TagSerializer, IngredientSerializer, UserSerializer
+from .serializers import TagSerializer, IngredientSerializer, UserSerializer, RecipeSerializer
 from .pagination import PagePagination
-from recipes.models import Ingredient, Tag
+from recipes.models import Ingredient, Tag, Recipe
 
 
 User = get_user_model()
@@ -28,3 +28,8 @@ class UserViewSet(DjoserViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     pagination_class = PagePagination
+
+
+class RecipeViewSet(viewsets.ModelViewSet):
+    queryset = Recipe.objects.all()
+    serializer_class = RecipeSerializer
