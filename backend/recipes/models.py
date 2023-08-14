@@ -79,7 +79,7 @@ class IngredientAmount(models.Model):
         return f'{self.ingredient} {self.amount}'
 
 
-class Favorites(models.Model):
+class Favorite(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -100,7 +100,7 @@ class Favorites(models.Model):
         return f'{self.user} добавил {self.recipe}'
 
 
-class ShoppingList(models.Model):
+class ShoppingCart(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -113,6 +113,6 @@ class ShoppingList(models.Model):
     )
 
     class Meta:
-        default_related_name = 'shopping_lists'
+        default_related_name = 'shopping_cart'
         verbose_name = 'Список покупок'
         verbose_name_plural = 'Списки покупок'

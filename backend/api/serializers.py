@@ -5,7 +5,7 @@ from djoser.serializers import (
 )
 from django.contrib.auth import get_user_model
 from django.db.models import F
-from recipes.models import Ingredient, Tag, Recipe, Favorites, ShoppingList
+from recipes.models import Ingredient, Tag, Recipe, Favorite, ShoppingCart
 from users.models import Subscribe
 
 User = get_user_model()
