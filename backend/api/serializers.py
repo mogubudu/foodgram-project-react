@@ -1,7 +1,9 @@
-from rest_framework import serializers
+from rest_framework import serializers, status
+from rest_framework.exceptions import ValidationError
 from djoser.serializers import UserSerializer, UserCreateSerializer
 from django.contrib.auth import get_user_model
 
+from recipes.models import Recipe
 from users.models import Subscribe
 
 User = get_user_model()
@@ -29,6 +31,21 @@ class CustomUserSerializer(UserSerializer):
         return False
 
 
-class SubscribeSerializer(serializers.ModelSerializer):
-    model = Subscribe
-    fields = '__all__'
+class ShortRecipeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time')
+
+
+class SubscribeSerializer(CustomUserSerializer):
+    recipes = ShortRecipeSerializer(many=True, read_only=True)
+    recipes_count = serializers.SerializerMethodField(read_only=True)
+
+    class Meta(CustomUserSerializer.Meta):
+        fields = CustomUserSerializer.Meta.fields + ( 'recipes', 'recipes_count')
+
+    def get_is_subscribed(self, obj):
+        return True
+
+    def get_recipes_count(self, obj):
+        return obj.recipes.count()

@@ -38,8 +38,7 @@ class Tag(models.Model):
 class Recipe(models.Model):
     author = models.ForeignKey(
         User,
-        on_delete=models.CASCADE,
-        related_name='recipes'
+        on_delete=models.CASCADE
     )
     name = models.CharField(verbose_name='Название рецепта', max_length=200)
     image = models.ImageField(verbose_name='Изображение рецепта')
