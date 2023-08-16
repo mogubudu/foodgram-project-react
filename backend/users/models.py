@@ -4,7 +4,9 @@ from django.db.models import UniqueConstraint
 
 
 class User(AbstractUser):
-    email = models.EmailField(verbose_name='Электронная почта', max_length=254)
+    email = models.EmailField(verbose_name='Электронная почта',
+                              max_length=254,
+                              unique=True)
     first_name = models.CharField(
         verbose_name='Имя пользователя',
         max_length=150)
@@ -35,3 +37,6 @@ class Subscribe(models.Model):
         ]
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
+
+    def __str__(self):
+        return f'{self.user} подписан на {self.author}'

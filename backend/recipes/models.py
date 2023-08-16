@@ -72,6 +72,7 @@ class IngredientAmount(models.Model):
     amount = models.PositiveIntegerField('Количество')
 
     class Meta:
+        default_related_name = 'ingredients_amount'
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
 
