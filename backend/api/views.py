@@ -1,4 +1,5 @@
 from rest_framework import status
+from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -6,8 +7,9 @@ from djoser.views import UserViewSet
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 
-from .serializers import CustomUserSerializer, SubscribeSerializer
+from .serializers import CustomUserSerializer, SubscribeSerializer, IngredientSerializer
 from .pagination import PageLimitPagination
+from recipes.models import Ingredient
 from users.models import Subscribe
 
 
@@ -62,3 +64,9 @@ class CustomUserViewSet(UserViewSet):
         subscription.delete()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Ingredient.objects.all()
+    serializer_class = IngredientSerializer
+    http_method_names = ['get']
