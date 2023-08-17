@@ -3,7 +3,7 @@ from rest_framework.exceptions import ValidationError
 from djoser.serializers import UserSerializer, UserCreateSerializer
 from django.contrib.auth import get_user_model
 
-from recipes.models import Ingredient, Recipe
+from recipes.models import Ingredient, Recipe, Tag
 from users.models import Subscribe
 
 User = get_user_model()
@@ -71,4 +71,10 @@ class SubscribeSerializer(CustomUserSerializer):
 class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ingredient
+        fields = ('__all__')
+
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
         fields = ('__all__')
