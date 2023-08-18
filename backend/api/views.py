@@ -7,9 +7,13 @@ from djoser.views import UserViewSet
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 
-from .serializers import CustomUserSerializer, SubscribeSerializer, IngredientSerializer, TagSerializer
+from .serializers import (
+    CustomUserSerializer, SubscribeSerializer,
+    IngredientSerializer, TagSerializer,
+    RecipeSerializer
+    )
 from .pagination import PageLimitPagination
-from recipes.models import Ingredient, Tag
+from recipes.models import Ingredient, Tag, Recipe
 from users.models import Subscribe
 
 
@@ -21,7 +25,11 @@ class CustomUserViewSet(UserViewSet):
     serializer_class = CustomUserSerializer
     pagination_class = PageLimitPagination
 
-    @action(methods=['get'], detail=False)
+    @action(
+        methods=['get'],
+        detail=False,
+        permission_classes=[IsAuthenticated]
+    )
     def subscriptions(self, request):
         subscriptions = User.objects.filter(
             subscribing__user=self.request.user
@@ -76,3 +84,8 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     http_method_names = ['get']
+
+
+class RecipeViewSet(viewsets.ModelViewSet):
+    queryset = Recipe.objects.all()
+    serializer_class = RecipeSerializer
