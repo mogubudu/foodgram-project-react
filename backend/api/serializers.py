@@ -3,7 +3,7 @@ from rest_framework.exceptions import ValidationError
 from djoser.serializers import UserSerializer, UserCreateSerializer
 from django.contrib.auth import get_user_model
 
-from recipes.models import Ingredient, Recipe, Tag, Favorite
+from recipes.models import Ingredient, Recipe, Tag, Favorite, ShoppingCart
 from users.models import Subscribe
 
 User = get_user_model()
@@ -110,4 +110,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         return False
 
     def get_is_in_shopping_cart(self, obj):
+        user = self.context.get('request').user
+        if user.is_authenticated:
+            return ShoppingCart.objects.filter(recipe=obj, user=user).exists()
         return False
