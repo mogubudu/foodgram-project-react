@@ -2,7 +2,7 @@ from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, SAFE_METHODS
 from djoser.views import UserViewSet
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
@@ -10,7 +10,7 @@ from django.shortcuts import get_object_or_404
 from .serializers import (
     CustomUserSerializer, SubscribeSerializer,
     IngredientSerializer, TagSerializer,
-    RecipeSerializer
+    RecipeSerializer, RecipeWriteSerializer
     )
 from .pagination import PageLimitPagination
 from recipes.models import Ingredient, Tag, Recipe
@@ -89,3 +89,11 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
+
+    def get_serializer_class(self):
+        if self.request.method in SAFE_METHODS:
+            return RecipeSerializer
+        return RecipeWriteSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
