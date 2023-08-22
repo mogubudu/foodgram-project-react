@@ -1,3 +1,4 @@
+from django.db.models import Sum
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -7,13 +8,15 @@ from djoser.views import UserViewSet
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 
+from .handlers import create_and_download_pdf_file
+
 from .serializers import (
     CustomUserSerializer, SubscribeSerializer,
     IngredientSerializer, TagSerializer,
     RecipeSerializer, RecipeWriteSerializer
     )
 from .pagination import PageLimitPagination
-from recipes.models import Ingredient, Tag, Recipe
+from recipes.models import Ingredient, IngredientAmount, Tag, Recipe
 from users.models import Subscribe
 
 
@@ -97,3 +100,16 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
+    @action(methods=['get'], detail=False, permission_classes=[IsAuthenticated])
+    def download_shopping_cart(self, request):
+        user = request.user
+        ingredients = IngredientAmount.objects.filter(
+            recipe__shopping_cart__user=user
+        ).values_list(
+            'ingredient__name',
+            'ingredient__measurement_unit'
+        ).annotate(
+            Sum('amount')
+        )
+        return create_and_download_pdf_file(ingredients)
