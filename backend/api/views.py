@@ -4,6 +4,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, SAFE_METHODS
+from rest_framework.exceptions import ValidationError
 from djoser.views import UserViewSet
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
@@ -13,10 +14,11 @@ from .handlers import create_and_download_pdf_file
 from .serializers import (
     CustomUserSerializer, SubscribeSerializer,
     IngredientSerializer, TagSerializer,
-    RecipeSerializer, RecipeWriteSerializer
+    RecipeSerializer, RecipeWriteSerializer,
+    ShortRecipeSerializer
     )
 from .pagination import PageLimitPagination
-from recipes.models import Ingredient, IngredientAmount, Tag, Recipe
+from recipes.models import Ingredient, IngredientAmount, Tag, Recipe, ShoppingCart
 from users.models import Subscribe
 
 
@@ -113,3 +115,31 @@ class RecipeViewSet(viewsets.ModelViewSet):
             Sum('amount')
         )
         return create_and_download_pdf_file(ingredients)
+
+    @action(
+        methods=['post', 'delete'],
+        detail=True,
+        permission_classes=[IsAuthenticated]
+    )
+    def shopping_cart(self, request, **kwargs):
+        user = request.user
+        recipe = get_object_or_404(Recipe, pk=kwargs.get('pk'))
+
+        if request.method == 'POST':
+            _, created = ShoppingCart.objects.get_or_create(
+                user=user, recipe=recipe
+            )
+            if not created:
+                raise ValidationError(
+                    {'error': 'Рецепт уже был добавлен в список покупок'}
+                )
+            serializer = ShortRecipeSerializer(recipe)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        shopping_cart = get_object_or_404(
+            ShoppingCart,
+            user=user,
+            recipe=recipe
+        )
+        shopping_cart.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

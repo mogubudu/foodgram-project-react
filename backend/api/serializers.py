@@ -56,12 +56,12 @@ class SubscribeSerializer(CustomUserSerializer):
         user = self.context.get('request').user
         if Subscribe.objects.filter(author=author, user=user).exists():
             raise ValidationError(
-                detail='Вы уже подписаны на этого пользователя!',
+                detail='Вы уже подписаны на этого пользователя.',
                 code=status.HTTP_400_BAD_REQUEST
             )
         if user == author:
             raise ValidationError(
-                detail='Вы не можете подписаться на самого себя!',
+                detail='Вы не можете подписаться на самого себя.',
                 code=status.HTTP_400_BAD_REQUEST
             )
         return data
@@ -95,7 +95,7 @@ class Base64ImageField(serializers.ImageField):
 
 
 class RecipeSerializer(serializers.ModelSerializer):
-    tags = TagSerializer(many=True)
+    tags = TagSerializer(read_only=True, many=True)
     author = CustomUserSerializer(read_only=True)
     image = Base64ImageField()
     ingredients = serializers.SerializerMethodField()
@@ -160,9 +160,9 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         ingredients = []
         for item in value:
             if item['ingredient'] in ingredients:
-                raise ValidationError('Ингредиенты не должны повторяться')
+                raise ValidationError('Ингредиенты не должны повторяться.')
             if item['amount'] < 1:
-                raise ValidationError('Количество должно быть больше нуля')
+                raise ValidationError('Количество должно быть больше нуля.')
             ingredients.append(item['ingredient'])
         return value
 
@@ -170,7 +170,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         tags = []
         for item in value:
             if item in tags:
-                raise ValidationError('Теги должны быть уникальными!')
+                raise ValidationError('Теги должны быть уникальными.')
             tags.append(item)
         return value
 
