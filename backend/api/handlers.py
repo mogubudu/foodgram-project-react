@@ -1,10 +1,11 @@
 import io
-from config.settings import STATIC_ROOT
+
 from django.http import FileResponse
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import A4
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfgen import canvas
+
+from config.settings import STATIC_ROOT
 
 
 def create_and_download_pdf_file(ingredients):

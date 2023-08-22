@@ -1,26 +1,22 @@
-from django.db.models import Sum
-from rest_framework import status
-from rest_framework import viewsets
-from rest_framework.response import Response
-from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated, SAFE_METHODS
-from rest_framework.exceptions import ValidationError
-from djoser.views import UserViewSet
 from django.contrib.auth import get_user_model
+from django.db.models import Sum
 from django.shortcuts import get_object_or_404
+from djoser.views import UserViewSet
+from rest_framework import status, viewsets
+from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError
+from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
+from rest_framework.response import Response
 
-from .handlers import create_and_download_pdf_file
-
-from .serializers import (
-    CustomUserSerializer, SubscribeSerializer,
-    IngredientSerializer, TagSerializer,
-    RecipeSerializer, RecipeWriteSerializer,
-    ShortRecipeSerializer
-    )
-from .pagination import PageLimitPagination
-from recipes.models import Ingredient, IngredientAmount, Tag, Recipe, ShoppingCart, Favorite
+from recipes.models import (Favorite, Ingredient, IngredientAmount, Recipe,
+                            ShoppingCart, Tag)
 from users.models import Subscribe
-
+from .handlers import create_and_download_pdf_file
+from .pagination import PageLimitPagination
+from .serializers import (CustomUserSerializer, IngredientSerializer,
+                          RecipeSerializer, RecipeWriteSerializer,
+                          ShortRecipeSerializer, SubscribeSerializer,
+                          TagSerializer)
 
 User = get_user_model()
 
@@ -103,7 +99,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-    @action(methods=['get'], detail=False, permission_classes=[IsAuthenticated])
+    @action(
+        methods=['get'],
+        detail=False,
+        permission_classes=[IsAuthenticated]
+    )
     def download_shopping_cart(self, request):
         user = request.user
         ingredients = IngredientAmount.objects.filter(
