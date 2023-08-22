@@ -18,7 +18,7 @@ from .serializers import (
     ShortRecipeSerializer
     )
 from .pagination import PageLimitPagination
-from recipes.models import Ingredient, IngredientAmount, Tag, Recipe, ShoppingCart
+from recipes.models import Ingredient, IngredientAmount, Tag, Recipe, ShoppingCart, Favorite
 from users.models import Subscribe
 
 
@@ -142,4 +142,33 @@ class RecipeViewSet(viewsets.ModelViewSet):
             recipe=recipe
         )
         shopping_cart.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(
+        methods=['post', 'delete'],
+        detail=True,
+        permission_classes=[IsAuthenticated]
+    )
+    def favorite(self, request, **kwargs):
+        user = request.user
+        recipe = get_object_or_404(Recipe, pk=kwargs.get('pk'))
+
+        if request.method == 'POST':
+            _, created = Favorite.objects.get_or_create(
+                user=user,
+                recipe=recipe
+            )
+            if not created:
+                raise ValidationError(
+                    {'error': 'Рецепт уже был добавлен в избранное'}
+                )
+            serializer = ShortRecipeSerializer(recipe)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        favorite_recipe = get_object_or_404(
+            Favorite,
+            user=user,
+            recipe=recipe
+        )
+        favorite_recipe.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
