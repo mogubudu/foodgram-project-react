@@ -91,6 +91,7 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
+    pagination_class = PageLimitPagination
 
     def get_serializer_class(self):
         if self.request.method in SAFE_METHODS:
