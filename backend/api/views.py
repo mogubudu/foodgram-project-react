@@ -19,6 +19,7 @@ from .serializers import (CustomUserSerializer, IngredientSerializer,
                           ShortRecipeSerializer, SubscribeSerializer,
                           TagSerializer)
 from .filters import RecipeFilter
+from .permissions import IsAuthorOrReadOnly
 
 User = get_user_model()
 
@@ -94,6 +95,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     pagination_class = PageLimitPagination
+    permission_classes = [IsAuthorOrReadOnly]
     filter_backends = [DjangoFilterBackend]
     filterset_class = RecipeFilter
 
@@ -142,13 +144,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
             serializer = ShortRecipeSerializer(recipe)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        shopping_cart = get_object_or_404(
-            ShoppingCart,
+        shopping_cart = ShoppingCart.objects.filter(
             user=user,
             recipe=recipe
         )
-        shopping_cart.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        if shopping_cart.exists():
+            shopping_cart.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
     @action(
         methods=['post', 'delete'],
@@ -171,10 +174,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
             serializer = ShortRecipeSerializer(recipe)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        favorite_recipe = get_object_or_404(
-            Favorite,
-            user=user,
-            recipe=recipe
-        )
-        favorite_recipe.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        favorite_recipe = Favorite.objects.filter(user=user, recipe=recipe)
+        if favorite_recipe.exists():
+            favorite_recipe.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
