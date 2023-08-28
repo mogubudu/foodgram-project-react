@@ -40,7 +40,10 @@ class CustomUserViewSet(UserViewSet):
             subscribing__user=self.request.user
         )
         pages = self.paginate_queryset(subscriptions)
-        serializer = SubscribeSerializer(pages, many=True)
+        serializer = SubscribeSerializer(
+            pages,
+            many=True,
+            context={'request': request})
         return self.get_paginated_response(serializer.data)
 
     @action(methods=['post', 'delete'], detail=True)

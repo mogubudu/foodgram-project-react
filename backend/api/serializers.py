@@ -43,7 +43,7 @@ class ShortRecipeSerializer(serializers.ModelSerializer):
 
 
 class SubscribeSerializer(CustomUserSerializer):
-    recipes = ShortRecipeSerializer(many=True, read_only=True)
+    recipes = serializers.SerializerMethodField(read_only=True)
     recipes_count = serializers.SerializerMethodField(read_only=True)
 
     class Meta(CustomUserSerializer.Meta):
@@ -71,6 +71,15 @@ class SubscribeSerializer(CustomUserSerializer):
 
     def get_recipes_count(self, obj):
         return obj.recipes.count()
+
+    def get_recipes(self, obj):
+        request_get = self.context.get('request').GET
+        recipe_limit = request_get.get('recipes_limit')
+        recipes = obj.recipes.all()
+        if recipe_limit is not None:
+            recipes = recipes[:int(recipe_limit)]
+        serializer = ShortRecipeSerializer(recipes, many=True, read_only=True)
+        return serializer.data
 
 
 class IngredientSerializer(serializers.ModelSerializer):
