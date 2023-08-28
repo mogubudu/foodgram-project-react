@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db.models import Sum
+from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
 from rest_framework import status, viewsets
@@ -17,6 +18,7 @@ from .serializers import (CustomUserSerializer, IngredientSerializer,
                           RecipeSerializer, RecipeWriteSerializer,
                           ShortRecipeSerializer, SubscribeSerializer,
                           TagSerializer)
+from .filters import RecipeFilter
 
 User = get_user_model()
 
@@ -92,6 +94,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeSerializer
     pagination_class = PageLimitPagination
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = RecipeFilter
 
     def get_serializer_class(self):
         if self.request.method in SAFE_METHODS:
