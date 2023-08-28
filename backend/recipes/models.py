@@ -1,4 +1,4 @@
-from django.core.validators import RegexValidator
+from django.core.validators import RegexValidator, MinValueValidator
 from django.contrib.auth import get_user_model
 from django.db import models
 
@@ -62,7 +62,11 @@ class Recipe(models.Model):
     )
     tags = models.ManyToManyField(Tag)
     cooking_time = models.PositiveSmallIntegerField(
-        verbose_name='Время приготовления в минутах'
+        verbose_name='Время приготовления в минутах',
+        validators=[MinValueValidator(
+            limit_value=1,
+            message='Время приготовления не может быть меньше минуты'
+        )]
     )
 
     class Meta:
@@ -87,7 +91,12 @@ class IngredientAmount(models.Model):
         verbose_name='Название ингредиента'
     )
     recipe = models.ForeignKey('Recipe', on_delete=models.CASCADE)
-    amount = models.PositiveIntegerField('Количество')
+    amount = models.PositiveIntegerField(
+        verbose_name='Количество',
+        validators=[MinValueValidator(
+            limit_value=1,
+            message='Количество ингредиента должно быть больше одного'
+        )])
 
     class Meta:
         default_related_name = 'ingredients_amount'
