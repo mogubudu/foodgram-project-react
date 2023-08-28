@@ -1,3 +1,4 @@
+from django.core.validators import RegexValidator
 from django.contrib.auth import get_user_model
 from django.db import models
 
@@ -24,7 +25,15 @@ class Ingredient(models.Model):
 
 class Tag(models.Model):
     name = models.CharField(verbose_name='Название тега', max_length=200)
-    color = models.CharField(verbose_name='Цветовой HEX-код', max_length=7)
+    color = models.CharField(
+        verbose_name='Цветовой HEX-код',
+        max_length=7,
+        validators=[RegexValidator(
+            regex='^#[A-FA-F0-9]{6}$',
+            message='HEX-код должен быть длинной 7 символов '
+                    'и состоять из заглавных букв или цифр. '
+                    'Например, #FFFFFF или #444333')]
+    )
     slug = models.SlugField(verbose_name='Идентификатор URL')
 
     class Meta:
