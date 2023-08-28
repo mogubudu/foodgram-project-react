@@ -156,6 +156,19 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             'text', 'cooking_time',
             )
 
+    def validate_name(self, value):
+        user = self.context.get('request').user
+        recipe_exists = Recipe.objects.filter(
+            name=value,
+            author=user
+        ).exists()
+
+        if recipe_exists:
+            raise ValidationError(
+                {'error': 'У вас уже существует рецепт с таким названием'}
+            )
+        return value
+
     def validate_ingredients(self, value):
         ingredients = []
         for item in value:
