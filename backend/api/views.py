@@ -23,6 +23,7 @@ User = get_user_model()
 
 class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
+    http_method_names = ['get', 'post']
     serializer_class = CustomUserSerializer
     pagination_class = PageLimitPagination
 
