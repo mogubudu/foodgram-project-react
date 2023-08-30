@@ -165,44 +165,31 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             'text', 'cooking_time',
             )
 
-    def validate_name(self, value):
-        user = self.context.get('request').user
-        recipe_exists = Recipe.objects.filter(
-            name=value,
-            author=user
-        ).exists()
-
-        if recipe_exists:
-            raise ValidationError(
-                {'error': 'У вас уже существует рецепт с таким названием'}
-            )
-        return value
-
     def validate_ingredients(self, value):
         ingredients = []
-        for item in value:
-            if item['ingredient'] in ingredients:
+        for ingredient in value:
+            if ingredient['ingredient'] in ingredients:
                 raise ValidationError('Ингредиенты не должны повторяться.')
-            if item['amount'] < 1:
+            if ingredient['amount'] < 1:
                 raise ValidationError('Количество должно быть больше нуля.')
-            ingredients.append(item['ingredient'])
+            ingredients.append(ingredient['ingredient'])
         return value
 
     def validate_tags(self, value):
         tags = []
-        for item in value:
-            if item in tags:
+        for tag in value:
+            if tag in tags:
                 raise ValidationError('Теги должны быть уникальными.')
-            tags.append(item)
+            tags.append(tag)
         return value
 
-    def create_ingredients(self, ingredients, recipe):
+    def create_ingredients(self, recipe, ingredients):
         IngredientAmount.objects.bulk_create(
-            [IngredientAmount(
+            IngredientAmount(
                 ingredient=ingredient['ingredient'],
                 recipe=recipe,
                 amount=ingredient['amount']
-            ) for ingredient in ingredients]
+            ) for ingredient in ingredients
         )
 
     def create(self, validated_data):
@@ -216,13 +203,13 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
-        instance = super().update(instance, validated_data)
-        instance.tags.clear()
+
+        IngredientAmount.objects.filter(recipe=instance).delete()
+
         instance.tags.set(tags)
-        instance.ingredients.clear()
-        self.create_ingredients(recipe=instance, ingredients=ingredients)
-        instance.save()
-        return instance
+        self.create_ingredients(instance, ingredients)
+
+        return super().update(instance, validated_data)
 
     def to_representation(self, instance):
         request = self.context.get('request')

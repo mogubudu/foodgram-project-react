@@ -1,11 +1,12 @@
 import io
+import os
 
 from django.http import FileResponse
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
 
-from config.settings import STATIC_ROOT
+from config.settings import BASE_DIR
 
 
 def create_and_download_pdf_file(ingredients):
@@ -13,10 +14,13 @@ def create_and_download_pdf_file(ingredients):
     pdf = canvas.Canvas(buffer)
     x, y = 50, 770
     pdfmetrics.registerFont(
-            TTFont('Roboto Bold', STATIC_ROOT + '/fonts/Roboto-Bold.ttf')
+            TTFont(
+                'Roboto Bold',
+                os.path.join(BASE_DIR, 'static/fonts/Roboto-Bold.ttf'))
         )
     pdfmetrics.registerFont(
-            TTFont('Roboto', STATIC_ROOT + '/fonts/Roboto-Regular.ttf')
+            TTFont('Roboto',
+                   os.path.join(BASE_DIR, 'static/fonts/Roboto-Regular.ttf'))
         )
     pdf.setFont("Roboto Bold", 24)
     pdf.drawString(x, y, 'Список покупок')

@@ -70,6 +70,7 @@ class Recipe(models.Model):
     )
 
     class Meta:
+        ordering = ['-id']
         default_related_name = 'recipes'
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'

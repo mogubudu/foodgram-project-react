@@ -26,7 +26,6 @@ User = get_user_model()
 
 class CustomUserViewSet(UserViewSet):
     queryset = User.objects.all()
-    http_method_names = ['get', 'post']
     serializer_class = CustomUserSerializer
     pagination_class = PageLimitPagination
 
@@ -57,11 +56,9 @@ class CustomUserViewSet(UserViewSet):
         if request.method == 'POST':
             serializer = SubscribeSerializer(
                 author,
-                data=request.data,
                 context={"request": request}
             )
 
-            serializer.is_valid(raise_exception=True)
             Subscribe.objects.create(
                 user=user,
                 author=author
