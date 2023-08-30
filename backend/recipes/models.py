@@ -16,6 +16,7 @@ class Ingredient(models.Model):
     )
 
     class Meta:
+        ordering = ['name']
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
         constraints = [models.UniqueConstraint(
@@ -51,7 +52,8 @@ class Tag(models.Model):
 class Recipe(models.Model):
     author = models.ForeignKey(
         User,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        verbose_name='Автор рецепта'
     )
     name = models.CharField(verbose_name='Название рецепта', max_length=200)
     image = models.ImageField(verbose_name='Изображение рецепта')
@@ -60,7 +62,7 @@ class Recipe(models.Model):
         Ingredient,
         through='IngredientAmount'
     )
-    tags = models.ManyToManyField(Tag)
+    tags = models.ManyToManyField(Tag, verbose_name='Тег рецепта')
     cooking_time = models.PositiveSmallIntegerField(
         verbose_name='Время приготовления в минутах',
         validators=[MinValueValidator(

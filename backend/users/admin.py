@@ -8,7 +8,7 @@ User = get_user_model()
 class UserAdmin(admin.ModelAdmin):
     empty_value_display = "-"
     list_display = ['email', 'username', 'first_name', 'last_name']
-    list_filter = ["email", "username"]
+    search_fields = ["email", "username"]
 
 
 @admin.register(Subscribe)
