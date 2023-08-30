@@ -4,6 +4,7 @@ from .models import Subscribe
 
 User = get_user_model()
 
+
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
     empty_value_display = "-"

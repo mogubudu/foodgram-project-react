@@ -84,7 +84,7 @@ class Recipe(models.Model):
         ]
 
     def __str__(self):
-        return f'{self.name}, {self.author}'
+        return f'{self.name}'
 
 
 class IngredientAmount(models.Model):
@@ -132,7 +132,7 @@ class Favorite(models.Model):
         )]
 
     def __str__(self):
-        return f'{self.user} добавил {self.recipe}'
+        return f'{self.user} добавил {self.recipe} в избранное'
 
 
 class ShoppingCart(models.Model):
@@ -157,3 +157,6 @@ class ShoppingCart(models.Model):
                 name='unique_shopping_cart'
             )
         ]
+
+    def __str__(self):
+        return f'{self.user} добавил {self.recipe} в корзину'

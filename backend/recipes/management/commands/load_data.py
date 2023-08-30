@@ -12,6 +12,8 @@ class Command(BaseCommand):
         with open(file_path, mode='r+', encoding='utf-8') as json_file:
             ingredients = json.load(json_file)
             try:
-                Ingredient.objects.bulk_create(Ingredient(**data) for data in ingredients)
+                Ingredient.objects.bulk_create(
+                    Ingredient(**data) for data in ingredients
+                    )
             except Exception as error:
-                print('Ошибка!')
+                print(f'Произошла ошибка {error}')
