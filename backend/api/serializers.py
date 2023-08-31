@@ -4,11 +4,10 @@ from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
 from django.db.models import F
 from djoser.serializers import UserCreateSerializer, UserSerializer
-from rest_framework import serializers, status
-from rest_framework.exceptions import ValidationError
-
 from recipes.models import (Favorite, Ingredient, IngredientAmount, Recipe,
                             ShoppingCart, Tag)
+from rest_framework import serializers, status
+from rest_framework.exceptions import ValidationError
 from users.models import Subscribe
 
 User = get_user_model()
@@ -163,7 +162,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             'id', 'tags', 'author',
             'ingredients', 'name', 'image',
             'text', 'cooking_time',
-            )
+        )
 
     def validate_ingredients(self, value):
         ingredients = []
