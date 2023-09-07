@@ -3,15 +3,15 @@ from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
+from recipes.models import (Favorite, Ingredient, IngredientAmount, Recipe,
+                            ShoppingCart, Tag)
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.response import Response
-
-from recipes.models import (Favorite, Ingredient, IngredientAmount, Recipe,
-                            ShoppingCart, Tag)
 from users.models import Subscribe
+
 from .filters import IngredientFilter, RecipeFilter
 from .handlers import create_and_download_pdf_file
 from .pagination import PageLimitPagination
@@ -126,27 +126,21 @@ class RecipeViewSet(viewsets.ModelViewSet):
         )
         return create_and_download_pdf_file(ingredients)
 
-    @action(
-        methods=['post', 'delete'],
-        detail=True,
-        permission_classes=[IsAuthenticated]
-    )
-    def shopping_cart(self, request, **kwargs):
-        user = request.user
-        recipe = get_object_or_404(Recipe, pk=kwargs.get('pk'))
-
-        if request.method == 'POST':
-            _, created = ShoppingCart.objects.get_or_create(
-                user=user, recipe=recipe
+    def create_recipe(self, user, model, pk):
+        recipe = get_object_or_404(Recipe, pk=pk)
+        _, created = model.objects.get_or_create(
+            user=user, recipe=recipe
+        )
+        if not created:
+            raise ValidationError(
+                {'error': 'Рецепт уже был добавлен'}
             )
-            if not created:
-                raise ValidationError(
-                    {'error': 'Рецепт уже был добавлен в список покупок'}
-                )
-            serializer = ShortRecipeSerializer(recipe)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        serializer = ShortRecipeSerializer(recipe)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        shopping_cart = ShoppingCart.objects.filter(
+    def delete_recipe(self, user, model, pk):
+        recipe = get_object_or_404(Recipe, pk=pk)
+        shopping_cart = model.objects.filter(
             user=user,
             recipe=recipe
         )
@@ -160,24 +154,19 @@ class RecipeViewSet(viewsets.ModelViewSet):
         detail=True,
         permission_classes=[IsAuthenticated]
     )
-    def favorite(self, request, **kwargs):
-        user = request.user
-        recipe = get_object_or_404(Recipe, pk=kwargs.get('pk'))
-
+    def shopping_cart(self, request, **kwargs):
         if request.method == 'POST':
-            _, created = Favorite.objects.get_or_create(
-                user=user,
-                recipe=recipe
-            )
-            if not created:
-                raise ValidationError(
-                    {'error': 'Рецепт уже был добавлен в избранное'}
-                )
-            serializer = ShortRecipeSerializer(recipe)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return self.create_recipe(request.user,
+                                      ShoppingCart,
+                                      kwargs.get('pk'))
+        return self.delete_recipe(request.user, ShoppingCart, kwargs.get('pk'))
 
-        favorite_recipe = Favorite.objects.filter(user=user, recipe=recipe)
-        if favorite_recipe.exists():
-            favorite_recipe.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+    @action(
+        methods=['post', 'delete'],
+        detail=True,
+        permission_classes=[IsAuthenticated]
+    )
+    def favorite(self, request, **kwargs):
+        if request.method == 'POST':
+            return self.create_recipe(request.user, Favorite, kwargs.get('pk'))
+        return self.delete_recipe(request.user, Favorite, kwargs.get('pk'))
