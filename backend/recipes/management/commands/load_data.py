@@ -1,7 +1,8 @@
 import json
 
-from config.settings import BASE_DIR
 from django.core.management import BaseCommand
+
+from config.settings import BASE_DIR
 from recipes.models import Ingredient
 
 file_path = f'{BASE_DIR}/data/ingredients.json'
