@@ -42,6 +42,7 @@ class Tag(models.Model):
     slug = models.SlugField(verbose_name='Идентификатор URL')
 
     class Meta:
+        ordering = ['name']
         verbose_name = 'Тег'
         verbose_name_plural = 'Теги'
 
