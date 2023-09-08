@@ -5,14 +5,12 @@ from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.response import Response
 
 from recipes.models import (Favorite, Ingredient, IngredientAmount, Recipe,
                             ShoppingCart, Tag)
 from users.models import Subscribe
-
 from .filters import IngredientFilter, RecipeFilter
 from .handlers import create_and_download_pdf_file
 from .pagination import PageLimitPagination
@@ -133,8 +131,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
             user=user, recipe=recipe
         )
         if not created:
-            raise ValidationError(
-                {'error': 'Рецепт уже был добавлен'}
+            return Response(
+                {'error': 'Рецепт уже был добавлен'},
+                status=status.HTTP_400_BAD_REQUEST
             )
         serializer = ShortRecipeSerializer(recipe)
         return Response(serializer.data, status=status.HTTP_201_CREATED)

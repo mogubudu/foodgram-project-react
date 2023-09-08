@@ -7,7 +7,6 @@ from rest_framework.exceptions import ValidationError
 from recipes.models import (Favorite, Ingredient, IngredientAmount, Recipe,
                             ShoppingCart, Tag)
 from users.models import Subscribe
-
 from .fields import Base64ImageField
 
 User = get_user_model()
